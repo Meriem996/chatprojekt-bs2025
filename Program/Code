@@ -1,2 +1,7 @@
-print("Hallo ich bin Meriem")
+import socket
+whois_port=4000
+Buffer_size=1023
+Handle = "Meriem"
+local_port=5000
+
 
