@@ -1,3 +1,4 @@
+
 """
 @file discovery.py
 @brief Discovery-Prozess: verarbeitet WHOIS-Broadcasts und antwortet mit IAM (SLCP).
