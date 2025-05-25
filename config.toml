@@ -1,0 +1,6 @@
+handle = "A"
+port = 5001
+whoisport = 4000
+autoreply = "Hey send me nothing"
+imagepath = "./images"
+dark_mode = false
