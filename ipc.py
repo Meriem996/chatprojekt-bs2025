@@ -14,6 +14,7 @@ Die Queues ermöglichen eine strukturierte und sichere Übergabe von SLCP-Nachri
 Chatnachrichten, Bilderpfaden und Teilnehmerinformationen.
 """
 
+
 from multiprocessing import Queue
 
 
