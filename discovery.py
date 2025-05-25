@@ -44,4 +44,4 @@ def run_discovery(queue_from_ui, queue_to_ui_net):
     udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     udp_socket.bind(("", whois_port))  # lauscht auf allen verfügbaren Netzwerkschnittstellen
 
-    print(f"[Discovery] Listening for WHOIS on UDP-Port {whois_port}")
+    print(f"[Discovery] Listening for WHOIS on UDP-Port {whois_port}".
