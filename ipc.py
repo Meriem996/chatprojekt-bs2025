@@ -16,7 +16,7 @@ Chatnachrichten, Bilderpfaden und Teilnehmerinformationen.
 
 
 from multiprocessing import Queue
-
+#test um meine Name Richtig zu zeigen in github
 
 # ================================================
 # UI → Netzwerk: Von CLI/GUI zum Netzwerkprozess
