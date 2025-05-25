@@ -114,7 +114,6 @@ def main():
         sock.sendto(full_msg.encode("utf-8"), ("127.0.0.1", target_port))
 
 
-
 # Einstiegspunkt bei Direktaufruf der Datei
 if __name__ == "__main__":
     main()
