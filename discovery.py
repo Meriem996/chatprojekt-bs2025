@@ -90,3 +90,53 @@ def run_discovery(queue_from_ui, queue_to_ui_net):
             time.sleep(0.1)  # CPU-Last reduzieren
 
     def process_outgoing():
+        """
+                @brief Thread zur Verarbeitung von WHOIS-Anfragen aus der UI.
+                @details
+                Bereinigt WHOIS-Eingabe (z. B. 'WHOIS B') → sendet korrektes SLCP.
+                """
+        while True:
+            try:
+                if not queue_from_ui.empty():
+                    item = queue_from_ui.get_nowait()
+                    raw = item["data"].strip()
+
+                    if raw.upper().startswith("WHOIS "):
+                        handle = raw[6:].strip()
+                    else:
+                        handle = raw
+
+                    whois_msg = build_message("WHOIS", handle, str(local_port))
+                    udp_socket.sendto(whois_msg.encode("utf-8"), ('255.255.255.255', whois_port))
+                    print(f"[Discovery] WHOIS gesendet (Broadcast): {whois_msg}")
+            except Exception as e:
+                print(f"[Discovery-WHOIS-Fehler] {e}")
+            time.sleep(0.1)
+
+        # === Threads für eingehend und ausgehend starten ===
+
+    threading.Thread(target=receive_whois, daemon=True).start()
+    threading.Thread(target=process_outgoing, daemon=True).start()
+
+    # Hauptprozess bleibt aktiv (z. B. für Logging), blockiert aber nichts
+    while True:
+        time.sleep(1)
+
+
+def get_own_ip() -> str:
+    """
+    @brief Ermittelt die lokale IP-Adresse des aktuellen Rechners.
+    @details
+    Es wird eine "Dummy-Verbindung" zu 8.8.8.8 (Google DNS) aufgebaut,
+    nur um die IP des ausgehenden Interfaces herauszufinden.
+
+    @return Lokale IP-Adresse als String, z. B. "192.168.0.23"
+    """
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))  # Keine echte Datenübertragung nötig
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"  # Fallback bei Fehlern oder keiner Verbindung
