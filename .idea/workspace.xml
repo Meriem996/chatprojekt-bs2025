@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e0042c8-4166-4c4c-81eb-dfa74bef9cb5" name="Changes" comment="#test um meine Name Richtig zu zeigen in github" />
+    <list default="true" id="3e0042c8-4166-4c4c-81eb-dfa74bef9cb5" name="Changes" comment="#test um meine Name Richtig zu zeigen in github">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,7 +37,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Meriem996/chatprojekt-bs2025.git&quot;,
-    &quot;accountId&quot;: &quot;ae2bd4d2-fce9-4d31-99dd-602f6df6c79f&quot;
+    &quot;accountId&quot;: &quot;84406018-3a16-428e-8b14-68a08fcb2f56&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -55,10 +57,14 @@
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
-    "settings.editor.selected.configurable": "vcs.Git"
+    "last_opened_file_path": "C:/Users/ayoub.belhaj/PycharmProjects/chatprojekt-bs2025",
+    "settings.editor.selected.configurable": "com.intellij.pycharm.community.ide.impl.configuration.PythonContentEntriesConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ayoub.belhaj\PycharmProjects\chatprojekt-bs2025" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\merie\PycharmProjects\chatprojekt-bs2025" />
     </key>
@@ -66,10 +72,11 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-e0ed3721d81e-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.25410.159" />
+        <option value="bundled-python-sdk-d7ad00fb9fc3-c546a90a8094-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-242.23726.102" />
       </set>
     </attachedChunks>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="3e0042c8-4166-4c4c-81eb-dfa74bef9cb5" name="Changes" comment="" />
@@ -136,6 +143,7 @@
     <MESSAGE value="Add neccessary file for Chat programme" />
     <MESSAGE value="Implementierung der IPC-Kommunikation mit Queue" />
     <MESSAGE value="#test um meine Name Richtig zu zeigen in github" />
-    <option name="LAST_COMMIT_MESSAGE" value="#test um meine Name Richtig zu zeigen in github" />
+    <MESSAGE value="Discovery-Modul hinzugefügt: WHOIS-Anfragen empfangen und IAM-Antworten senden." />
+    <option name="LAST_COMMIT_MESSAGE" value="Discovery-Modul hinzugefügt: WHOIS-Anfragen empfangen und IAM-Antworten senden." />
   </component>
 </project>
