@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ac41a62f-8520-44b3-bccb-6db07ec7ce9f" name="Changes" comment="Projekt initialisiert – IDE- und Git-Dateien hinzugefügt">
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_25_05_2025_19_19_[Changes]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_25_05_2025_19_19__Changes_.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/chatprojekt-bs2025.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/chatprojekt-bs2025.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="ac41a62f-8520-44b3-bccb-6db07ec7ce9f" name="Changes" comment="update discovery.py">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +43,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "Merging main",
+    "git-widget-placeholder": "main",
     "last_opened_file_path": "C:/Users/Charlize Duku/PycharmProjects/chatprojekt-bs2025",
     "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable"
   }
@@ -89,7 +85,23 @@
       <option name="project" value="LOCAL" />
       <updated>1748287041595</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Projekt initialisiert – IDE- und Git-Dateien hinzugefügt">
+      <option name="closed" value="true" />
+      <created>1748288213231</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1748288213233</updated>
+    </task>
+    <task id="LOCAL-00004" summary="update discovery.py">
+      <option name="closed" value="true" />
+      <created>1748290014285</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1748290014286</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -106,6 +118,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Implementierte zentrales Konfigurationsmodul (config.py) zum sicheren Laden, Validieren und Speichern der config.toml" />
     <MESSAGE value="Projekt initialisiert – IDE- und Git-Dateien hinzugefügt" />
-    <option name="LAST_COMMIT_MESSAGE" value="Projekt initialisiert – IDE- und Git-Dateien hinzugefügt" />
+    <MESSAGE value="update discovery.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="update discovery.py" />
   </component>
 </project>
