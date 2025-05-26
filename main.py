@@ -128,3 +128,67 @@ def main():
                 args=(queue_ui_to_net, queue_net_to_ui, queue_discovery_to_net),
                 name="Netzwerk-Prozess"
             )
+
+            # Starte Discoveryprozess
+            p_disc = multiprocessing.Process(
+                target=discovery.run_discovery,
+                args=(queue_ui_to_discovery, queue_discovery_to_net),
+                name="Discovery-Prozess"
+            )
+
+            p_net.start()
+            p_disc.start()
+            print(f"[INFO] Prozess gestartet: {p_net.name} (PID: {p_net.pid})")
+            print(f"[INFO] Prozess gestartet: {p_disc.name} (PID: {p_disc.pid})")
+
+            # CLI läuft im Hauptprozess
+            ui_cli.run_cli(queue_ui_to_net, queue_net_to_ui, queue_ui_to_discovery, queue_discovery_to_ui)
+
+            # Wenn CLI beendet wurde, Prozesse beenden
+            p_net.terminate()
+            p_disc.terminate()
+            p_net.join()
+            p_disc.join()
+            print("[INFO] Prozesse nach CLI-Ende sauber beendet.")
+
+            return
+
+        else:
+            # GUI-Prozess separat starten
+            p_ui = multiprocessing.Process(
+                target=ui_gui.run_gui,
+                args=(queue_ui_to_net, queue_net_to_ui, queue_ui_to_discovery, queue_discovery_to_ui),
+                name="GUI-Prozess"
+            )
+            processes.append(p_ui)
+
+            # Netzwerkprozess: empfängt/versendet SLCP-Befehle
+        p_net = multiprocessing.Process(
+            target=network.run_network,
+            args=(queue_ui_to_net, queue_net_to_ui, queue_discovery_to_net),  # ⬅ NEU
+            name="Netzwerk-Prozess"
+        )
+        processes.append(p_net)
+
+        # Discoveryprozess: WHOIS/IAM-Verarbeitung
+        p_disc = multiprocessing.Process(
+            target=discovery.run_discovery,
+            args=(queue_ui_to_discovery, queue_discovery_to_net),  # ⬅ Discovery sendet direkt an Network!
+            name="Discovery-Prozess"
+        )
+        processes.append(p_disc)
+
+        # Prozesse starten
+        for p in processes:
+            p.start()
+            print(f"[INFO] Prozess gestartet: {p.name} (PID: {p.pid})")
+
+        try:
+            for p in processes:
+                p.join()
+        except KeyboardInterrupt:
+            print("\n[INFO] Abbruch erkannt. Prozesse werden beendet...")
+            for p in processes:
+                p.terminate()
+                p.join()
+            print("[INFO] Alle Prozesse sauber beendet.")
