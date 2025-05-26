@@ -62,3 +62,69 @@ def choose_ui():
 
 
 def choose_ui_local(role):
+    """
+        @brief Im lokalen Modus: Oberfläche für Benutzer 1 oder 2 wählen.
+        @param role "Benutzer 1" oder "Benutzer 2"
+        @return "cli" oder "gui"
+        """
+    while True:
+        choice = input(f"Wähle Oberfläche für {role} [cli/gui]: ").strip().lower()
+        if choice in ("cli", "gui"):
+            return choice
+        print("Ungültige Eingabe. Bitte 'cli' oder 'gui' eingeben.")
+
+
+def ask_name_cli():
+    """
+    @brief Liest den Namen des Benutzers für CLI aus und speichert ihn in der Konfiguration.
+    """
+    while True:
+        name = input("Wie heißt du? ").strip()
+        if name:
+            update_config_field("handle", name)
+            return
+        print("Name darf nicht leer sein.")
+
+
+def main():
+    """
+    @brief Zentrale Steuerfunktion des Chatprogramms.
+    @details Je nach Moduswahl wird entweder der Netzwerk- oder der lokale Modus gestartet.
+    Die Prozesse für GUI, Netzwerk und Discovery laufen dabei separat (außer CLI).
+    """
+
+    print("== BSRN-Chatprogramm Initialisierung ==")
+
+    mode = choose_mode()
+
+    if mode == "1":
+        # === Netzwerkmodus ===
+        ui_mode = choose_ui()
+
+        if ui_mode == "cli":
+            ask_name_cli()
+
+        try:
+            config = load_config()
+            print(f"[OK] Konfiguration geladen für Benutzer: {config['handle']}")
+        except Exception as e:
+            print(f"[Fehler] Konfigurationsfehler: {e}")
+            sys.exit(1)
+
+        processes = []
+
+        if ui_mode == "cli":
+
+            try:
+                config = load_config()
+                print(f"[OK] Konfiguration geladen für Benutzer: {config['handle']}")
+            except Exception as e:
+                print(f"[Fehler] Konfigurationsfehler: {e}")
+                sys.exit(1)
+
+            # Starte Netzwerkprozess
+            p_net = multiprocessing.Process(
+                target=network.run_network,
+                args=(queue_ui_to_net, queue_net_to_ui, queue_discovery_to_net),
+                name="Netzwerk-Prozess"
+            )
