@@ -98,3 +98,122 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc):
                 queue_to_net.put({"type": "broadcast", "data": msg})
 
             # LEAVE – Abmelden
+            elif cmd == "leave":
+                msg = build_message("LEAVE", config["handle"])
+                queue_to_net.put({"type": "broadcast", "data": msg})
+
+            # MSG – Textnachricht an anderen Benutzer
+            elif cmd == "msg":
+                if len(tokens) < 3:
+                    print("Syntax: msg <Empfänger> <Nachricht>")
+                    continue
+                to = tokens[1]
+                text = " ".join(tokens[2:])
+                msg = build_message("MSG", to, text)
+                queue_to_net.put({"type": "direct_text", "to": to, "data": msg})
+
+            # IMG – Bild versenden
+            elif cmd == "img":
+                if len(tokens) != 3:
+                    print("Syntax: img <Empfänger> <Bildpfad>")
+                    continue
+                to = tokens[1]
+                path = tokens[2]
+                if not os.path.exists(path):
+                    print("Bildpfad existiert nicht.")
+                    continue
+                data = read_image_bytes(path)
+                size = get_image_size(path)
+                msg = build_message("IMG", to, size)
+                queue_to_net.put({"type": "direct_image", "to": to, "data": msg, "binary": data})
+
+            # WHOIS – Suche nach Benutzer im Netzwerk
+            elif cmd == "whois":
+                if len(tokens) != 2:
+                    print("Syntax: whois <Benutzername>")
+                    continue
+                target = tokens[1]
+                msg = build_message("WHOIS", target)
+                queue_to_disc.put({"data": msg})
+
+            # AUTOREPLY – automatische Antwort setzen
+            elif cmd == "autoreply":
+                if len(tokens) < 2:
+                    print("Syntax: autoreply <Text>")
+                    continue
+                text = " ".join(tokens[1:])
+                update_config_field("autoreply", text)
+                print(f"Autoreply gesetzt auf: {text}")
+
+            # CONFIG – Zeige aktuelle Konfiguration
+            elif cmd == "config":
+                config = load_config()
+                print("Aktuelle Konfiguration:")
+                for key, val in config.items():
+                    print(f"  {key}: {val}")
+
+            # EXIT – Beenden des Programms
+            elif cmd == "exit":
+                print("Beende Chat...")
+                msg = build_message("LEAVE", config["handle"])
+                queue_to_net.put({"type": "broadcast", "data": msg})
+                break
+
+            else:
+                print("Unbekannter Befehl.")
+
+        except KeyboardInterrupt:
+            print("\n[INTERRUPT] Beende Chat...")
+            break
+        except Exception as e:
+            print(f"[Fehler] {e}")
+
+
+def run_cli_local(name, incoming_queue, outgoing_queue):
+    """
+    @brief Lokale CLI-Variante ohne Netzwerk – z. B. für GUI↔CLI auf demselben Gerät.
+    @details Nachrichten werden über Queues zwischen CLI/GUI weitergereicht.
+    Unterstützte Befehle:
+      - msg <Empfänger> <Nachricht>
+      - exit
+
+    @param name Benutzername des CLI-Nutzers (wird in config gesetzt)
+    @param incoming_queue Eingehende Nachrichten von z. B. GUI
+    @param outgoing_queue Zu sendende Nachrichten an z. B. GUI
+    """
+    update_config_field("handle", name)
+
+    print(f"[Lokaler CLI gestartet für: {name}]")
+    print(">> Zum Beenden 'exit' eingeben")
+
+    while True:
+        try:
+            user_input = input(">> ").strip()
+            if user_input.lower() == "exit":
+                break
+            elif not user_input:
+                continue
+
+            # Nachricht senden
+            elif user_input.startswith("msg "):
+                parts = user_input.split(" ", 2)
+                if len(parts) < 3:
+                    print("[Fehler] Nutzung: msg <Empfänger> <Nachricht>")
+                    continue
+                to, text = parts[1], parts[2]
+                outgoing_queue.put({"type": "text", "from": name, "text": text})
+                print(f"[Du → {to}]: {text}")
+
+            else:
+                print("[Info] Nur 'msg <Name> <Nachricht>' oder 'exit' erlaubt.")
+
+            # Eingehende Nachrichten anzeigen
+            while not incoming_queue.empty():
+                msg = incoming_queue.get_nowait()
+                if msg["type"] == "text":
+                    print(f"[{msg['from']}]: {msg['text']}")
+
+        except EOFError:
+            break
+        except Exception as e:
+            print(f"[Fehler] {e}")
