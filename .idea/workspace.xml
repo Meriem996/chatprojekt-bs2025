@@ -4,21 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e0042c8-4166-4c4c-81eb-dfa74bef9cb5" name="Changes" comment="#test um meine Name Richtig zu zeigen in github">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="ac41a62f-8520-44b3-bccb-6db07ec7ce9f" name="Changes" comment="Projekt initialisiert – IDE- und Git-Dateien hinzugefügt">
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_25_05_2025_19_19_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_25_05_2025_19_19__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/chatprojekt-bs2025.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/chatprojekt-bs2025.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="HTML File" />
-        <option value="Python Script" />
-      </list>
-    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -37,7 +33,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Meriem996/chatprojekt-bs2025.git&quot;,
-    &quot;accountId&quot;: &quot;84406018-3a16-428e-8b14-68a08fcb2f56&quot;
+    &quot;accountId&quot;: &quot;ae2bd4d2-fce9-4d31-99dd-602f6df6c79f&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -50,21 +46,13 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.ipc.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/Users/ayoub.belhaj/PycharmProjects/chatprojekt-bs2025",
-    "settings.editor.selected.configurable": "com.intellij.pycharm.community.ide.impl.configuration.PythonContentEntriesConfigurable"
+    "git-widget-placeholder": "Merging main",
+    "last_opened_file_path": "C:/Users/Charlize Duku/PycharmProjects/chatprojekt-bs2025",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\ayoub.belhaj\PycharmProjects\chatprojekt-bs2025" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\merie\PycharmProjects\chatprojekt-bs2025" />
     </key>
@@ -79,53 +67,29 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="3e0042c8-4166-4c4c-81eb-dfa74bef9cb5" name="Changes" comment="" />
-      <created>1747422274693</created>
+      <changelist id="ac41a62f-8520-44b3-bccb-6db07ec7ce9f" name="Changes" comment="" />
+      <created>1748027148553</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1747422274693</updated>
+      <updated>1748027148553</updated>
     </task>
-    <task id="LOCAL-00001" summary="Add neccessary file for Chat programme">
+    <task id="LOCAL-00001" summary="Implementierte zentrales Konfigurationsmodul (config.py) zum sicheren Laden, Validieren und Speichern der config.toml">
       <option name="closed" value="true" />
-      <created>1747766534829</created>
+      <created>1748192383179</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1747766534829</updated>
+      <updated>1748192383179</updated>
     </task>
-    <task id="LOCAL-00002" summary="Implementierung der IPC-Kommunikation mit Queue">
+    <task id="LOCAL-00002" summary="Projekt initialisiert – IDE- und Git-Dateien hinzugefügt">
       <option name="closed" value="true" />
-      <created>1748119846163</created>
+      <created>1748287041595</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1748119846163</updated>
+      <updated>1748287041595</updated>
     </task>
-    <task id="LOCAL-00003" summary="Implementierung der IPC-Kommunikation mit Queue">
-      <option name="closed" value="true" />
-      <created>1748195632149</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1748195632149</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Implementierung der IPC-Kommunikation mit Queue">
-      <option name="closed" value="true" />
-      <created>1748195734548</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1748195734548</updated>
-    </task>
-    <task id="LOCAL-00005" summary="#test um meine Name Richtig zu zeigen in github">
-      <option name="closed" value="true" />
-      <created>1748197878526</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1748197878526</updated>
-    </task>
-    <option name="localTasksCounter" value="6" />
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -140,10 +104,8 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Add neccessary file for Chat programme" />
-    <MESSAGE value="Implementierung der IPC-Kommunikation mit Queue" />
-    <MESSAGE value="#test um meine Name Richtig zu zeigen in github" />
-    <MESSAGE value="Discovery-Modul hinzugefügt: WHOIS-Anfragen empfangen und IAM-Antworten senden." />
-    <option name="LAST_COMMIT_MESSAGE" value="Discovery-Modul hinzugefügt: WHOIS-Anfragen empfangen und IAM-Antworten senden." />
+    <MESSAGE value="Implementierte zentrales Konfigurationsmodul (config.py) zum sicheren Laden, Validieren und Speichern der config.toml" />
+    <MESSAGE value="Projekt initialisiert – IDE- und Git-Dateien hinzugefügt" />
+    <option name="LAST_COMMIT_MESSAGE" value="Projekt initialisiert – IDE- und Git-Dateien hinzugefügt" />
   </component>
 </project>
