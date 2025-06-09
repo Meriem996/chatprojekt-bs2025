@@ -9,3 +9,8 @@ Zwei Hintergrund-Threads werden verwendet:
 - receive_whois(): verarbeitet eingehende WHOIS/IAM
 - process_outgoing(): sendet WHOIS-Broadcasts
 """
+import socket
+import threading
+import time
+from utils.slcp import parse_message,build_message
+
