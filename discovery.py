@@ -30,4 +30,12 @@ def run_discovery(queue_from_ui, queue_to_ui_net, config):
     whois_port = config["whoisport"]
     local_handle = config["handle"]
     local_port = config["port"]
+    # === UDP-Socket einrichten für Broadcast-Empfang und -Versand ===
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    udp_socket.bind(("", whois_port))  # lauscht auf allen verfügbaren Netzwerkschnittstellen
+
+    print(f"[Discovery] Listening for WHOIS on UDP-Port {whois_port}")
+
 
