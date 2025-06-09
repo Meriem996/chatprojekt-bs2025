@@ -17,3 +17,5 @@ queue_ui_to_discovery = Queue()
 
 # Discovery → UI
 queue_discovery_to_ui = Queue()
+queue_discovery_to_net = Queue()
+
