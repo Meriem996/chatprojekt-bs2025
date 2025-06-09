@@ -1,0 +1,10 @@
+PROJECT_NAME           = "BSRN-Chatprogramm"
+OUTPUT_DIRECTORY       = docs
+INPUT                  = ./
+FILE_PATTERNS          = *.py *.dox
+RECURSIVE              = YES
+EXTRACT_ALL            = YES
+MARKDOWN_SUPPORT       = YES
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+INPUT_ENCODING         = UTF-8
