@@ -1,6 +1,6 @@
-<<<<<<< HEAD
-test
-=======
+
+
+
 """
 @file main.py
 @brief Strtpnkt für ds BSRN-Chtprogrmm.
