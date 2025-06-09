@@ -13,6 +13,7 @@ import socket
 import threading
 import time
 from utils.slcp import parse_message,build_message
+
 def run_discovery(queue_from_ui, queue_to_ui_net, config):
     """
     @brief Startet den Discoveryprozess zur Netzwerkerkennung von Peers.
@@ -127,7 +128,9 @@ def get_own_ip() -> str:
         s.close()
         return ip
     except Exception:
+       
         return "127.0.0.1"  # Fallback bei Fehlern oder keiner Verbindung
+        
 
 
 
