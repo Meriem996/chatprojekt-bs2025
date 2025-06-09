@@ -16,9 +16,8 @@ Er:
 import socket
 import threading
 import time
-import traceback
 
-from utils.config import load_config, get_config_value
+from utils.config import get_config_value
 from utils.slcp import build_message, parse_message
 from utils.image_tools import save_image
 
@@ -43,15 +42,21 @@ def get_broadcast_address():
         return '255.255.255.255'
 
 
-def run_network(queue_from_ui, queue_to_ui, queue_from_discovery):
+def run_network(queue_from_ui, queue_to_ui, queue_from_discovery, config):
     """
     @brief Startet den Netzwerkprozess: SLCP-Verarbeitung, TCP/UDP-Kommunikation und Peer-Verwaltung.
     @param queue_from_ui Nachrichten von der UI (z. B. MSG, IMG, JOIN etc.)
     @param queue_to_ui Nachrichten an die UI (empfangene Texte, Bilder, Peer-Updates)
+    Intern enthält diese Methode u. a.:
+    - receive_udp(): verarbeitet eingehende SLCP-Befehle (UDP)
+    - tcp_listener(): empfängt TCP-Daten (z. B. Bilder)
+    - send_direct_udp(): verschickt UDP-Nachrichten an Peers
+    - send_direct_tcp(): verschickt Bilddaten an Peers (TCP)
+    - ui_input_handler(): verarbeitet UI-Befehle
+    - discovery_input_handler(): verarbeitet IAM-Nachrichten
     """
 
     # Konfiguration laden
-    config = load_config()
     whois_port = config["whoisport"]  # WHOIS-Port laden
     handle = config["handle"]
     listen_port = config["port"]
@@ -68,25 +73,7 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery):
     tcp_socket.bind(("", listen_port))
     tcp_socket.listen(10)
 
-    # === Zusätzlicher UDP-Socket für WHOIS/IAM (Port z. B. 5001) ===
-    whois_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    whois_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    whois_socket.bind(("", whois_port))
-
     print(f"[Netzwerk] Lausche auf Port {listen_port} (UDP & TCP)")
-
-    def send_peers_to_ui():
-        """
-        @brief Sendet regelmäßig die aktuelle Peer-Liste an die UI.
-        @details Wird von der GUI genutzt, um aktive Kontakte anzuzeigen.
-        """
-        while True:
-            try:
-                peer_names = list(peers.keys())
-                queue_to_ui.put({"type": "peers_update", "peers": peer_names})
-            except Exception:
-                pass
-            time.sleep(3)
 
     def receive_udp():
         """
@@ -112,6 +99,15 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery):
                         del peers[sender]
                         print(f"[LEAVE] {sender} hat den Chat verlassen.")
 
+                elif command == "MSG":
+                    sender, text = params[0], params[1]
+
+                    queue_to_ui.put({
+                        "type": "text",
+                        "from": sender,
+                        "text": text,
+                        "is_self": False  # Nachricht stammt vom anderen Peer
+                    })
 
                 elif command == "WHOIS":
                     sender = params[0]  # z.B. "A"
@@ -120,11 +116,10 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery):
                     print(f"[WHOIS] erhalten von {sender} @ {addr[0]}:{sender_port}")
 
                     # Autoreply senden, wenn gesetzt
-                    if sender != handle and get_config_value("autoreply"):
-                        reply = get_config_value("autoreply")
-                        auto_msg = build_message("MSG", handle, reply)
-                        send_direct_udp(sender, auto_msg)
-
+                    reply = get_config_value("autoreply")
+                    if sender != handle and reply:
+                       auto_msg = build_message("MSG", handle, reply)
+                       send_direct_udp(sender, auto_msg)
 
                 elif command == "IAM":
                     sender, ip, port = params[0], params[1], int(params[2])
@@ -156,185 +151,3 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery):
         @param conn Offene TCP-Verbindung
         @details Erkennt SLCP-Kommando, empfängt Bilddaten und sendet sie an die UI.
         """
-        try:
-            # Header lesen
-            header = conn.recv(512).decode("utf-8").strip()
-            parsed = parse_message(header)
-            command = parsed["command"]
-            params = parsed["params"]
-
-            if command == "MSG":
-                sender, text = params[0], params[1]
-                queue_to_ui.put({"type": "text", "from": sender, "text": text})
-
-            elif command == "IMG":
-                sender = params[0]
-                size_comment_raw = params[1]
-
-                # Bildgröße und Kommentar trennen
-                if '|' in size_comment_raw:
-                    size_str, comment = size_comment_raw.split('|', 1)
-                else:
-                    size_str, comment = size_comment_raw, ""
-
-                try:
-                    size = int(size_str)
-                except ValueError:
-                    print(f"[TCP-Fehler] Ungültige Bildgröße: {size_str}")
-                    return
-
-                # Bilddaten empfangen
-                image_data = b""
-                while len(image_data) < size:
-                    chunk = conn.recv(size - len(image_data))
-                    if not chunk:
-                        break
-                    image_data += chunk
-
-                img_path = save_image(image_data, image_dir, sender)
-
-                # An UI schicken
-                queue_to_ui.put({
-                    "type": "image",
-                    "from": sender,
-                    "path": img_path,
-                    "comment": comment.strip()
-                })
-
-        except Exception as e:
-            print(f"[TCP-Fehler] {e}")
-        finally:
-            conn.close()
-
-    def ui_input_handler():
-        """
-        @brief Verarbeitet SLCP-Befehle aus der Benutzeroberfläche.
-        @details Erkennt drei Typen:
-            - broadcast (JOIN, LEAVE)
-            - direct_text (MSG)
-            - direct_image (IMG)
-        """
-        while True:
-            try:
-                if not queue_from_ui.empty():
-                    item = queue_from_ui.get_nowait()
-                    msg_type = item["type"]
-
-                    if msg_type == "broadcast":
-                        broadcast_ip = get_broadcast_address()
-                        udp_socket.sendto(item["data"].encode("utf-8"), (broadcast_ip, config["whoisport"]))
-
-                    elif msg_type == "direct_text":
-                        send_direct_udp(item["to"], item["data"])
-
-                    elif msg_type == "direct_image":
-                        to = item["to"]
-                        binary = item["binary"]
-                        comment = item.get("comment", "")
-                        # Wir übergeben KEINEN Header mehr, sondern nur noch relevante Werte
-                        send_direct_tcp(to, None, binary, comment)
-
-            except Exception as e:
-                print(f"[UI→Netzwerk Fehler] {e}")
-            time.sleep(0.1)
-
-    def send_direct_udp(to_handle, message):
-        """
-        @brief Sendet SLCP-Nachricht direkt per UDP an einen Peer.
-        @param to_handle Handle des Empfängers
-        @param message SLCP-Nachricht als String
-        """
-        if to_handle not in peers:
-            print(f"[Fehler] Kein Peer-Eintrag für '{to_handle}' vorhanden.")
-            print(f"[DEBUG] Aktuelle Peers: {list(peers.keys())}")
-            return
-
-        ip, port = peers[to_handle]
-        print(f"[Sende UDP an] {to_handle} @ {ip}:{port}")
-        try:
-            udp_socket.sendto(message.encode("utf-8"), (ip, port))
-        except Exception as e:
-            print(f"[UDP-Sendeproblem] {e}")
-
-    def send_direct_tcp(to_handle, _, binary_data, comment=""):
-        """
-        @brief Sendet Nachricht inkl. Binärdaten (z. B. Bilder) per TCP an einen Peer.
-        @param to_handle Ziel-Handle
-        @param _ Ignorierter Parameter (früher: header_message)
-        @param binary_data Binärdaten des Bildes
-        @param comment Optionaler Kommentartext
-        """
-        if to_handle not in peers:
-            print(f"[Fehler] Kein Eintrag für {to_handle}")
-            return
-
-        ip, port = peers[to_handle]
-        try:
-            # Konfiguration laden (für Handle)
-            config = load_config()
-            handle = config["handle"]
-            size = len(binary_data)
-
-            # Header mit Kommentar in der Form: IMG <from> <size>|<comment>
-            header_message = build_message("IMG", handle, f"{size}|{comment}")
-
-            # TCP-Verbindung und Senden
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((ip, port))
-            s.sendall(header_message.encode("utf-8"))
-            time.sleep(0.05)  # kurze Pause zwischen Header und Bilddaten
-            s.sendall(binary_data)
-            s.close()
-
-        except Exception as e:
-            print(f"[TCP-Sendeproblem] {e}")
-
-    def listen_to_discovery():
-        """
-        @brief Liest IAM-Nachrichten aus der Discovery-Queue und aktualisiert die Peerliste.
-        """
-        while True:
-            try:
-                if not queue_from_discovery.empty():
-                    item = queue_from_discovery.get_nowait()
-                    if item["type"] == "iam":
-                        handle = item["handle"]
-                        ip = item["ip"]
-                        port = item["port"]
-                        peers[handle] = (ip, port)
-                        print(f"[Netzwerk] IAM erhalten: {handle} @ {ip}:{port}")
-            except Exception as e:
-                print(f"[IAM-Queue-Fehler] {e}")
-                import traceback
-                traceback.print_exc()
-            time.sleep(0.1)
-
-    def discovery_input_handler():
-        """
-        @brief Verarbeitet IAM-Nachrichten aus dem Discovery-Prozess.
-        """
-        while True:
-            try:
-                if not queue_from_discovery.empty():
-                    item = queue_from_discovery.get_nowait()
-                    if item["type"] == "iam":
-                        handle = item["handle"]
-                        ip = item["ip"]
-                        port = item["port"]
-                        peers[handle] = (ip, port)
-                        print(f"[IAM via Discovery] {handle} @ {ip}:{port}")
-            except Exception as e:
-                print(f"[IAM-Queue-Fehler] {e}")
-            time.sleep(0.1)
-
-    # === Alle Threads starten ===
-    threading.Thread(target=receive_udp, daemon=True).start()
-    threading.Thread(target=tcp_listener, daemon=True).start()
-    threading.Thread(target=ui_input_handler, daemon=True).start()
-    threading.Thread(target=send_peers_to_ui, daemon=True).start()
-    threading.Thread(target=listen_to_discovery, daemon=True).start()
-    threading.Thread(target=discovery_input_handler, daemon=True).start()
-
-    # Hauptprozess läuft im Hintergrund weiter
-    while True:
-        time.sleep(1)
