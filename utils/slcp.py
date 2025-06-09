@@ -1,4 +1,3 @@
-
 """
 @file slcp.py
 @brief Generierung und Parsing von SLCP-Protokollnachrichten (JOIN, LEAVE, MSG, IMG, WHOIS, IAM)
@@ -101,4 +100,3 @@ def parse_message(raw_data: str) -> dict:
         "command": command,
         "params": params
     }
->>>>>>> 0ab78cc (Discovery-Modul:  ergänzt)
