@@ -4,4 +4,7 @@ __pycache__/
 .env
 .idea/
 *.iml
+<<<<<<< HEAD
 venv/
+=======
+>>>>>>> 0ab78cc (Discovery-Modul:  ergänzt)
