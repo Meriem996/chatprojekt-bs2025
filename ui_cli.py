@@ -5,22 +5,19 @@
 @details
 Dieses Modul implementiert zwei Varianten der Benutzeroberfläche:
 - run_cli(): für echten Netzwerkbetrieb mit SLCP und Discovery
-- run_cli_local(): für lokale Kommunikation mit GUI oder anderer CLI über IPC
 
 Beide Varianten unterstützen Text- und Bildnachrichten, Konfiguration, WHOIS und Autoreply.
 """
-
+#
 import threading
 import time
 import os
 
-import discovery
-from utils.config import load_config, update_config_field
+from utils.config import update_config_field
 from utils.image_tools import read_image_bytes, get_image_size, open_image
 from utils.slcp import build_message
 
-
-def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc):
+def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc, config):
     """
     @brief Startet die CLI-Oberfläche des Chatprogramms im Netzwerkmodus.
     @details Lädt Konfiguration, startet Listener-Thread und verarbeitet Benutzerbefehle.
@@ -40,15 +37,11 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc):
     @param queue_to_disc Queue zur Kommunikation mit Discoveryprozess (WHOIS)
     @param queue_from_disc Queue zum Empfang von IAM-Antworten
     """
-    config = load_config()
-    myip = discovery.get_own_ip()
-
-    print(myip)
     print(f"Willkommen im BSRN-Chat, {config['handle']}!")
     print("Verfügbare Befehle: join, leave, msg, img, whois, autoreply, config, exit\n")
 
     # === Eingehende Nachrichten parallel anzeigen ===
-    peers = {}  # 🔧 Lokale Peer-Liste für CLI
+    peers = {}  # Lokale Peer-Liste für CLI
 
     def listener():
         """
@@ -64,7 +57,6 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc):
                         print(f"\n[Nachricht von {msg['from']}] {msg['text']}")
                     elif msg["type"] == "image":
                         print(f"\n[Empfangenes Bild von {msg['from']}] gespeichert: {msg['path']}")
-                        open_image(msg['path'])  # optional automatisch öffnen
 
                 # IAM-Antworten vom Discoveryprozess
                 if not queue_from_disc.empty():
@@ -72,7 +64,7 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc):
                     handle = iam['handle']
                     ip = iam['ip']
                     port = iam['port']
-                    peers[handle] = (ip, port)  # 🔧 Peer speichern!
+                    peers[handle] = (ip, port)  # Peer speichern!
                     print(f"\n[WHOIS-Antwort] {handle} ist erreichbar unter {ip}:{port}")
 
             except Exception:
@@ -105,11 +97,11 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc):
             # MSG – Textnachricht an anderen Benutzer
             elif cmd == "msg":
                 if len(tokens) < 3:
-                    print("Syntax: msg <Empfänger> <Nachricht>")
-                    continue
+                   print("Syntax: msg <Empfänger> <Nachricht>")
+                   continue
                 to = tokens[1]
                 text = " ".join(tokens[2:])
-                msg = build_message("MSG", to, text)
+                msg = build_message("MSG", config["handle"], text)   # handle = Absender
                 queue_to_net.put({"type": "direct_text", "to": to, "data": msg})
 
             # IMG – Bild versenden
@@ -147,7 +139,6 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc):
 
             # CONFIG – Zeige aktuelle Konfiguration
             elif cmd == "config":
-                config = load_config()
                 print("Aktuelle Konfiguration:")
                 for key, val in config.items():
                     print(f"  {key}: {val}")
@@ -164,56 +155,6 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc):
 
         except KeyboardInterrupt:
             print("\n[INTERRUPT] Beende Chat...")
-            break
-        except Exception as e:
-            print(f"[Fehler] {e}")
-
-
-def run_cli_local(name, incoming_queue, outgoing_queue):
-    """
-    @brief Lokale CLI-Variante ohne Netzwerk – z. B. für GUI↔CLI auf demselben Gerät.
-    @details Nachrichten werden über Queues zwischen CLI/GUI weitergereicht.
-    Unterstützte Befehle:
-      - msg <Empfänger> <Nachricht>
-      - exit
-
-    @param name Benutzername des CLI-Nutzers (wird in config gesetzt)
-    @param incoming_queue Eingehende Nachrichten von z. B. GUI
-    @param outgoing_queue Zu sendende Nachrichten an z. B. GUI
-    """
-    update_config_field("handle", name)
-
-    print(f"[Lokaler CLI gestartet für: {name}]")
-    print(">> Zum Beenden 'exit' eingeben")
-
-    while True:
-        try:
-            user_input = input(">> ").strip()
-            if user_input.lower() == "exit":
-                break
-            elif not user_input:
-                continue
-
-            # Nachricht senden
-            elif user_input.startswith("msg "):
-                parts = user_input.split(" ", 2)
-                if len(parts) < 3:
-                    print("[Fehler] Nutzung: msg <Empfänger> <Nachricht>")
-                    continue
-                to, text = parts[1], parts[2]
-                outgoing_queue.put({"type": "text", "from": name, "text": text})
-                print(f"[Du → {to}]: {text}")
-
-            else:
-                print("[Info] Nur 'msg <Name> <Nachricht>' oder 'exit' erlaubt.")
-
-            # Eingehende Nachrichten anzeigen
-            while not incoming_queue.empty():
-                msg = incoming_queue.get_nowait()
-                if msg["type"] == "text":
-                    print(f"[{msg['from']}]: {msg['text']}")
-
-        except EOFError:
             break
         except Exception as e:
             print(f"[Fehler] {e}")
