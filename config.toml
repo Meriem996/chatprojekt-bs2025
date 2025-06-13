@@ -34,6 +34,22 @@ port = 5007
 handle = "b"
 port = 5008
 
+[[clients]]
+handle = "tim"
+port = 5009
+
+[[clients]]
+handle = "tom"
+port = 5010
+
+[[clients]]
+handle = "silas"
+port = 5011
+
+[[clients]]
+handle = "c"
+port = 5012
+
 [defaults]
 whoisport = 4000
 autoreply = "Ich bin nicht da."

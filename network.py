@@ -24,6 +24,10 @@ from utils.image_tools import save_image
 # Lokale Peer-Datenbank: handle → (IP, Port)
 # Wird durch JOIN, WHOIS/IAM oder eingehende Nachrichten gepflegt
 peers = {}
+# Status aller bekannten Peers: handle → bool (True = online, False = offline)
+peer_status = {}
+# Status-Flag: Ist dieser Client dem Chat beigetreten?
+joined = False
 
 
 def get_broadcast_address():
@@ -89,18 +93,25 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery, config):
                 params = parsed["params"]
 
                 if command == "JOIN":
-                    sender, sender_port = params[0], int(params[1])
-                    peers[sender] = (addr[0], sender_port)
-                    print(f"[JOIN] {sender} @ {addr[0]}:{sender_port}")
-
+                     sender, sender_port = params[0], int(params[1])
+                     peers[sender] = (addr[0], sender_port)
+                     peer_status[sender] = True
+                     print(f"[JOIN] {sender} @ {addr[0]}:{sender_port} ist jetzt online.")
                 elif command == "LEAVE":
                     sender = params[0]
                     if sender in peers:
-                        del peers[sender]
-                        print(f"[LEAVE] {sender} hat den Chat verlassen.")
+                       peer_status[sender] = False
+                       print(f"[LEAVE] {sender} hat den Chat verlassen.")
 
                 elif command == "MSG":
                     sender, text = params[0], params[1]
+                    if not joined:
+                       # Auto-Reply senden
+                       reply = get_config_value("autoreply")
+                       if sender != handle and reply:
+                          auto_msg = build_message("MSG", handle, "[autoreply] " + reply)
+                          send_direct_udp(sender, auto_msg, allow_if_offline=True)
+                       return  # Nicht in UI anzeigen, wenn wir offline sind
 
                     queue_to_ui.put({
                         "type": "text",
@@ -110,16 +121,17 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery, config):
                     })
 
                 elif command == "WHOIS":
-                    sender = params[0]  # z.B. "A"
-                    sender_port = int(params[1])
-                    peers[sender] = (addr[0], sender_port)
-                    print(f"[WHOIS] erhalten von {sender} @ {addr[0]}:{sender_port}")
+                     sender = params[0]  # z.B. "Alice"
+                     sender_port = int(params[1])
+                     peers[sender] = (addr[0], sender_port)
+                     print(f"[WHOIS] erhalten von {sender} @ {addr[0]}:{sender_port}")
 
-                    # Autoreply senden, wenn gesetzt
-                    reply = get_config_value("autoreply")
-                    if sender != handle and reply:
-                       auto_msg = build_message("MSG", handle, reply)
-                       send_direct_udp(sender, auto_msg)
+                     # Auto-Reply senden, wenn wir offline sind
+                     if not joined:
+                        reply = get_config_value("autoreply")
+                        if sender != handle and reply:
+                           auto_msg = build_message("MSG", handle, reply)
+                           send_direct_udp(sender, auto_msg, allow_if_offline=True)
 
                 elif command == "IAM":
                     sender, ip, port = params[0], params[1], int(params[2])
@@ -209,6 +221,7 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery, config):
             - direct_text (MSG)
             - direct_image (IMG)
         """
+        global joined
         while True:
             try:
                 if not queue_from_ui.empty():
@@ -216,6 +229,13 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery, config):
                     msg_type = item["type"]
 
                     if msg_type == "broadcast":
+                        parsed = parse_message(item["data"])
+                        if parsed["command"] == "JOIN":
+                            joined = True
+                            print("[Status] Du bist jetzt dem Chat beigetreten.")
+                        elif parsed["command"] == "LEAVE":
+                            joined = False
+                            print("[Status] Du hast den Chat verlassen.")    
                         broadcast_ip = get_broadcast_address()
                         udp_socket.sendto(item["data"].encode("utf-8"), (broadcast_ip, config["whoisport"]))
 
@@ -233,12 +253,16 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery, config):
                 print(f"[UI→Netzwerk Fehler] {e}")
             time.sleep(0.1)
 
-    def send_direct_udp(to_handle, message):
+    def send_direct_udp(to_handle, message, allow_if_offline=False):
         """
         @brief Sendet SLCP-Nachricht direkt per UDP an einen Peer.
         @param to_handle Handle des Empfängers
         @param message SLCP-Nachricht als String
         """
+        if not joined and not allow_if_offline:
+           print("[ABGELEHNT] Du bist nicht gejoint – Nachricht wird nicht gesendet.")
+           return
+
         if to_handle not in peers:
             print(f"[Fehler] Kein Peer-Eintrag für '{to_handle}' vorhanden.")
             print(f"[DEBUG] Aktuelle Peers: {list(peers.keys())}")
@@ -258,6 +282,10 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery, config):
         @param binary_data Binärdaten des Bildes
         @param comment Optionaler Kommentartext
         """
+        if not joined:
+           print("[ABGELEHNT] Du bist nicht gejoint – Bild wird nicht gesendet.")
+           return
+
         if to_handle not in peers:
             print(f"[Fehler] Kein Eintrag für {to_handle}")
             return
@@ -307,4 +335,4 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery, config):
 
     # Hauptprozess läuft im Hintergrund weiter
     while True:
-        time.sleep(1)        
+        time.sleep(1)

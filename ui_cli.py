@@ -8,7 +8,7 @@ Dieses Modul implementiert zwei Varianten der Benutzeroberfläche:
 
 Beide Varianten unterstützen Text- und Bildnachrichten, Konfiguration, WHOIS und Autoreply.
 """
-#
+
 import threading
 import time
 import os
@@ -54,7 +54,13 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc, config
                     msg = queue_from_net.get_nowait()
 
                     if msg["type"] == "text":
-                        print(f"\n[Nachricht von {msg['from']}] {msg['text']}")
+                       text = msg["text"]
+                       sender = msg["from"]
+                       if text.startswith("[autoreply]"):
+                          print(f"\n[Auto-Reply von {sender}] {text.replace('[autoreply] ', '', 1)}")
+                       else:
+                          print(f"\n[Nachricht von {sender}] {text}")
+
                     elif msg["type"] == "image":
                         print(f"\n[Empfangenes Bild von {msg['from']}] gespeichert: {msg['path']}")
 
@@ -88,11 +94,14 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc, config
             if cmd == "join":
                 msg = build_message("JOIN", config["handle"], config["port"])
                 queue_to_net.put({"type": "broadcast", "data": msg})
+                queue_to_disc.put({"data": msg})  
+
 
             # LEAVE – Abmelden
             elif cmd == "leave":
                 msg = build_message("LEAVE", config["handle"])
                 queue_to_net.put({"type": "broadcast", "data": msg})
+                queue_to_disc.put({"data": msg})
 
             # MSG – Textnachricht an anderen Benutzer
             elif cmd == "msg":
