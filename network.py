@@ -40,10 +40,10 @@ def get_broadcast_address():
     try:
         hostname = socket.gethostname()
         ip = socket.gethostbyname(hostname)
-        base = '.'.join(ip.split('.')[:-1])
-        return f"{base}.255"
+        parts = ip.split('.')
+        return f"{parts[0]}.{parts[1]}.{parts[2]}.255"
     except Exception:
-        return '255.255.255.255'
+        return "255.255.255.255"
 
 
 def run_network(queue_from_ui, queue_to_ui, queue_from_discovery, config):
