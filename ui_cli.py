@@ -17,7 +17,7 @@ from utils.config import update_config_field
 from utils.image_tools import read_image_bytes, get_image_size, open_image
 from utils.slcp import build_message
 
-def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc, config):
+def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc, config, start_discovery_callback):
     """
     @brief Startet die CLI-Oberfläche des Chatprogramms im Netzwerkmodus.
     @details Lädt Konfiguration, startet Listener-Thread und verarbeitet Benutzerbefehle.
@@ -38,7 +38,7 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc, config
     @param queue_from_disc Queue zum Empfang von IAM-Antworten
     """
     print(f"Willkommen im BSRN-Chat, {config['handle']}!")
-    print("Verfügbare Befehle: join, leave, msg, img, whois, autoreply, config, exit\n")
+    print("Verfügbare Befehle: join, leave, msg, img, whois, autoreply, config, start_discovery, exit")
 
     # === Eingehende Nachrichten parallel anzeigen ===
     peers = {}  # Lokale Peer-Liste für CLI
@@ -158,6 +158,9 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc, config
                 msg = build_message("LEAVE", config["handle"])
                 queue_to_net.put({"type": "broadcast", "data": msg})
                 break
+
+            elif cmd == "start_discovery":
+                start_discovery_callback()
 
             else:
                 print("Unbekannter Befehl.")
