@@ -132,7 +132,7 @@ def main():
     print("[INFO] Prozesse nach CLI-Ende sauber beendet.")
 
 # === Einstiegspunkt ===
-if _name_ == "_main_":
+if __name__ == "__main__":
     try:
         multiprocessing.set_start_method("spawn")
     except RuntimeError:
