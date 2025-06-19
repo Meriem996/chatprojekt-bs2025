@@ -166,4 +166,4 @@ def run_cli(queue_to_net, queue_from_net, queue_to_disc, queue_from_disc, config
             print("\n[INTERRUPT] Beende Chat...")
             break
         except Exception as e:
-            print(f"[Fehler] {e}").
+            print(f"[Fehler] {e}")
