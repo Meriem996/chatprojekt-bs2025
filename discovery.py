@@ -19,7 +19,7 @@ from utils.slcp import parse_message, build_message
 from utils.config import get_config_value  
 from queue import Empty
 
-def run_discovery(queue_from_ui, queue_to_ui_net, config):
+def run_discovery(queue_from_ui, queue_to_ui_net, config, receive_only=False):
     """
     @brief Startet den Discoveryprozess zur Netzwerkerkennung von Peers.
 
@@ -40,10 +40,13 @@ def run_discovery(queue_from_ui, queue_to_ui_net, config):
 
     joined = False  # ← lokale Variable für JOIN-Zustand
 
-
     # === UDP-Socket einrichten für Broadcast-Empfang und -Versand ===
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    try:
+       udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)  
+    except AttributeError:
+        pass  
     udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     udp_socket.bind(("", whois_port))  # lauscht auf allen verfügbaren Netzwerkschnittstellen
 
@@ -115,6 +118,8 @@ def run_discovery(queue_from_ui, queue_to_ui_net, config):
         Bereinigt WHOIS-Eingabe (z. B. 'WHOIS B') → sendet korrektes SLCP.
         """
         nonlocal joined
+        if receive_only:
+           return  # WHOIS-Sender deaktiviert
         while True:
             try:
                 item = queue_from_ui.get(timeout=0.1)
@@ -170,4 +175,3 @@ def get_own_ip() -> str:
         return ip
     except Exception:
         return "127.0.0.1"  # Fallback bei Fehlern oder keiner Verbindung
-    #test
