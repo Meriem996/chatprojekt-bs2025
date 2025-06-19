@@ -170,3 +170,4 @@ def get_own_ip() -> str:
         return ip
     except Exception:
         return "127.0.0.1"  # Fallback bei Fehlern oder keiner Verbindung
+    #test
