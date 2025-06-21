@@ -17,7 +17,6 @@ MAX_MESSAGE_LENGTH = 512     # Maximale Länge laut SLCP-Spezifikation (in Bytes
 LINE_ENDING = "\n"           # Nachrichten enden immer mit Zeilenumbruch
 VALID_COMMANDS = {"JOIN", "LEAVE", "MSG", "IMG", "WHOIS", "IAM"}  # erlaubte SLCP-Kommandos
 
-
 def escape_param(param: str) -> str:
     """
     @brief Wandelt einen Parameter so um, dass Leerzeichen und Sonderzeichen korrekt dargestellt werden.
