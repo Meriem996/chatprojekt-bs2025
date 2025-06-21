@@ -95,7 +95,7 @@ def run_discovery(queue_from_ui, queue_to_ui_net, config, receive_only=False):
 
                     iam_msg = build_message("IAM", local_handle, get_own_ip(), local_port)
 
-                    # IAM jetzt *immer über Broadcast senden*
+                    # IAM jetzt **immer über Broadcast senden**
                     broadcast_ip = detect_broadcast_address()
                     udp_socket.sendto(iam_msg.encode("utf-8"), (broadcast_ip, whois_port))
 

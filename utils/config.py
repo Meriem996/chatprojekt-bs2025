@@ -17,7 +17,7 @@ from threading import Lock
 from pathlib import Path
 
 # Absoluter Pfad zur zentralen Konfigurationsdatei
-CONFIG_PATH = os.path.abspath(os.path.join(os.path.dirname(_file_), '..', 'config.toml'))
+CONFIG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'config.toml'))
 
 # Thread-Sicherheit bei Dateioperationen
 _lock = Lock()
@@ -151,5 +151,3 @@ def get_config_value(key: str):
     """
     config = load_full_config()
     return config["defaults"].get(key, None)
-
-
