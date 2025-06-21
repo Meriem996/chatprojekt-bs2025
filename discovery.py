@@ -17,6 +17,7 @@ import time
 import traceback 
 from utils.slcp import parse_message, build_message
 from utils.config import get_config_value  
+from utils.network_utils import detect_broadcast_address
 from queue import Empty
 
 def run_discovery(queue_from_ui, queue_to_ui_net, config, receive_only=False):
@@ -93,8 +94,13 @@ def run_discovery(queue_from_ui, queue_to_ui_net, config, receive_only=False):
                         continue
 
                     iam_msg = build_message("IAM", local_handle, get_own_ip(), local_port)
-                    udp_socket.sendto(iam_msg.encode("utf-8"), (addr[0], target_port))
-                    print(f"[Discovery] WHOIS erhalten von {addr}, IAM gesendet an {(addr[0], target_port)}")
+
+                    # IAM jetzt *immer über Broadcast senden*
+                    broadcast_ip = detect_broadcast_address()
+                    udp_socket.sendto(iam_msg.encode("utf-8"), (broadcast_ip, whois_port))
+
+                    print(f"[Discovery] WHOIS erhalten von {addr}, IAM als Broadcast gesendet an {broadcast_ip}:{whois_port}")
+
 
                 # === IAM erhalten → weiterleiten an UI ===
                 elif parsed["command"] == "IAM":
@@ -141,7 +147,9 @@ def run_discovery(queue_from_ui, queue_to_ui_net, config, receive_only=False):
 
                     handle = parsed["params"][0]
                     whois_msg = build_message("WHOIS", handle, str(local_port))
-                    udp_socket.sendto(whois_msg.encode("utf-8"), ('255.255.255.255', whois_port))
+                    broadcast_ip = detect_broadcast_address()
+                    udp_socket.sendto(whois_msg.encode("utf-8"), (broadcast_ip, whois_port))
+
                     print(f"[Discovery] WHOIS gesendet (Broadcast): {whois_msg}")
             except Empty:
                  pass  # keine Nachricht = kein Problem
