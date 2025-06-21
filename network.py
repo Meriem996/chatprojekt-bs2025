@@ -341,4 +341,3 @@ def run_network(queue_from_ui, queue_to_ui, queue_from_discovery, config):
     # Hauptprozess läuft im Hintergrund weiter
     while True:
         time.sleep(1)
-.
