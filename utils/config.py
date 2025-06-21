@@ -17,7 +17,7 @@ from threading import Lock
 from pathlib import Path
 
 # Absoluter Pfad zur zentralen Konfigurationsdatei
-CONFIG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'config.toml'))
+CONFIG_PATH = os.path.abspath(os.path.join(os.path.dirname(_file_), '..', 'config.toml'))
 
 # Thread-Sicherheit bei Dateioperationen
 _lock = Lock()
@@ -88,7 +88,6 @@ def get_or_create_client_config(handle: str) -> dict:
                 "whoisport": config["defaults"]["whoisport"],
                 "autoreply": config["defaults"]["autoreply"],
                 "imagepath": config["defaults"]["imagepath"],
-                "dark_mode": config["defaults"].get("dark_mode", False)
             }
 
     # Neue Konfiguration für diesen Client anlegen
@@ -106,8 +105,7 @@ def get_or_create_client_config(handle: str) -> dict:
         "port": new_port,
         "whoisport": config["defaults"]["whoisport"],
         "autoreply": config["defaults"]["autoreply"],
-        "imagepath": config["defaults"]["imagepath"],
-        "dark_mode": config["defaults"].get("dark_mode", False)
+        "imagepath": config["defaults"]["imagepath"]
     }
 
 
@@ -127,8 +125,7 @@ def load_config(handle: str = None) -> dict:
                     "port": client["port"],
                     "whoisport": defaults["whoisport"],
                     "autoreply": defaults["autoreply"],
-                    "imagepath": defaults["imagepath"],
-                    "dark_mode": defaults.get("dark_mode", False)
+                    "imagepath": defaults["imagepath"]
                 }
     return defaults
 
@@ -154,3 +151,5 @@ def get_config_value(key: str):
     """
     config = load_full_config()
     return config["defaults"].get(key, None)
+
+

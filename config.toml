@@ -11,44 +11,8 @@ handle = "Bob"
 port = 5002
 
 [[clients]]
-handle = "a"
+handle = "clear"
 port = 5003
-
-[[clients]]
-handle = "t"
-port = 5004
-
-[[clients]]
-handle = "Christian"
-port = 5005
-
-[[clients]]
-handle = "christian"
-port = 5006
-
-[[clients]]
-handle = "chris"
-port = 5007
-
-[[clients]]
-handle = "b"
-port = 5008
-
-[[clients]]
-handle = "tim"
-port = 5009
-
-[[clients]]
-handle = "tom"
-port = 5010
-
-[[clients]]
-handle = "silas"
-port = 5011
-
-[[clients]]
-handle = "c"
-port = 5012
 
 [defaults]
 whoisport = 4000
