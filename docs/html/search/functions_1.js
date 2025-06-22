@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['build_5fmessage_75',['build_message',['../namespaceutils_1_1slcp.html#a4e9a51851529873ddc37c5319ba9a3b3',1,'utils::slcp']]]
+  ['detect_5fbroadcast_5faddress_0',['detect_broadcast_address',['../namespaceutils_1_1network__utils.html#a3706acccb350d5c3748d18f5ba4654cb',1,'utils::network_utils']]]
 ];

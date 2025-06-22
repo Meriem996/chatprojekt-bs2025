@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['read_5fimage_5fbytes_38',['read_image_bytes',['../namespaceutils_1_1image__tools.html#a6388acd416bf8cef3600bf770ee2beed',1,'utils::image_tools']]],
-  ['run_5fcli_39',['run_cli',['../namespaceui__cli.html#a5ff6c999d2acbcdc79b589faabca0e86',1,'ui_cli']]],
-  ['run_5fdiscovery_40',['run_discovery',['../namespacediscovery.html#ae9ed702b595609e982b718e7ab364f07',1,'discovery']]],
-  ['run_5fnetwork_41',['run_network',['../namespacenetwork.html#a3a91bfbeea7aafbe7c3c351186dcb31d',1,'network']]]
+  ['p_5fdisc_0',['p_disc',['../namespacemain.html#aa1a3ab033b0674f1b516209269df8a8e',1,'main']]],
+  ['parse_5fmessage_1',['parse_message',['../namespaceutils_1_1slcp.html#a3a917e7d1d71e4f0e555eebeb93a3bf9',1,'utils::slcp']]],
+  ['peer_5fstatus_2',['peer_status',['../namespacenetwork.html#ac319aa88c6dbd3552ef531d398ce4fe1',1,'network']]],
+  ['peers_3',['peers',['../namespacenetwork.html#a2d7e334c7e4399ab20f6d025a7af91bd',1,'network']]],
+  ['protokollimplementierung_20slcp_4',['Protokollimplementierung (SLCP)',['../index.html#protokoll',1,'']]]
 ];

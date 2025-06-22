@@ -14,6 +14,14 @@ port = 5002
 handle = "clear"
 port = 5003
 
+[[clients]]
+handle = "a"
+port = 5004
+
+[[clients]]
+handle = "b"
+port = 5005
+
 [defaults]
 whoisport = 4000
 autoreply = "Ich bin nicht da."

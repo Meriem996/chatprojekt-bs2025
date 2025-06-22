@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['valid_5fcommands_105',['VALID_COMMANDS',['../namespaceutils_1_1slcp.html#a7486d9dcdef8454c9f0d4f75a5bb46db',1,'utils::slcp']]]
+  ['max_5fmessage_5flength_0',['MAX_MESSAGE_LENGTH',['../namespaceutils_1_1slcp.html#a90ac6740ba69a4a8c76a9bbb7985d589',1,'utils::slcp']]]
 ];

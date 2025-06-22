@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['add_5fhover_5feffect_1',['add_hover_effect',['../namespacebutton__styles.html#a2b742adb733244426472ceaa0cac2559',1,'button_styles']]]
+  ['anwendung_0',['Bedienung der Anwendung',['../index.html#bedienung',1,'']]],
+  ['architekturansatz_1',['Gewählter Architekturansatz',['../index.html#ansatz',1,'']]],
+  ['autoren_2',['Autoren',['../index.html#autoren',1,'']]]
 ];

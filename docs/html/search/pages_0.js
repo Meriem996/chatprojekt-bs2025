@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['bsrn_2dchatprogramm_20–_20technische_20dokumentation_106',['BSRN-Chatprogramm – Technische Dokumentation',['../index.html',1,'']]]
+  ['bsrn_20chatprogramm_20–_20technische_20dokumentation_0',['BSRN-Chatprogramm – Technische Dokumentation',['../index.html',1,'']]]
 ];

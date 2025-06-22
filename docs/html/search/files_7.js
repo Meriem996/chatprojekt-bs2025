@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['slcp_2epy_72',['slcp.py',['../slcp_8py.html',1,'']]]
+  ['ui_5fcli_2epy_0',['ui_cli.py',['../ui__cli_8py.html',1,'']]]
 ];

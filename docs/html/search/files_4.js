@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['image_5ftools_2epy_67',['image_tools.py',['../image__tools_8py.html',1,'']]],
-  ['ipc_2epy_68',['ipc.py',['../ipc_8py.html',1,'']]]
+  ['main_2epy_0',['main.py',['../main_8py.html',1,'']]],
+  ['mainpage_2edox_1',['mainpage.dox',['../mainpage_8dox.html',1,'']]]
 ];
