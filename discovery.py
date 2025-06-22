@@ -1,110 +1,103 @@
 """
 @file discovery.py
-@brief Discovery-Modul für Peer-Erkennung im lokalen Netzwerk.
-
-@details
-Dieses Modul ermöglicht die automatische Erkennung von anderen Clients (Peers),
-die ebenfalls den SLCP (Simple Local Chat Protocol) verwenden. Es unterstützt:
-
-- Das Senden und Empfangen von WHOIS/IAM-Nachrichten über UDP.
-- Zwei parallele Threads:
-    1. Empfang von WHOIS/IAM
-    2. Senden von WHOIS-Anfragen (z. B. ausgelöst durch die UI)
+@brief Automatische Peer-Erkennung per WHOIS/IAM im lokalen Netzwerk.
 """
 
-import socket, threading, time
+import socket, threading, time, traceback
+from queue import Empty
 from utils.slcp import parse_message, build_message
+from utils.config import get_config_value
+from utils.network_utils import detect_broadcast_address
 
-def run_discovery(queue_from_ui, queue_to_ui, config):
-    """
-    @brief Startet den Discovery-Prozess in zwei Threads (Empfang/Senden).
-
-    @param queue_from_ui: Queue für WHOIS-Anfragen aus der UI
-    @param queue_to_ui: Queue für IAM-Antworten zurück an die UI
-    @param config: Dict mit folgenden Einträgen:
-        - 'whoisport': UDP-Port, auf dem WHOIS/IAM läuft
-        - 'handle': lokaler Benutzername (wird in IAM verwendet)
-        - 'port': TCP-Port für spätere Verbindungen
-    """
-
+def run_discovery(queue_from_ui, queue_to_ui_net, config, receive_only=False):
     whois_port = config["whoisport"]
     local_handle = config["handle"]
+    autoreply = get_config_value("autoreply")
     local_port = config["port"]
+    joined = False
 
-    # UDP-Socket für WHOIS/IAM initialisieren
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    sock.bind(("", whois_port))
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    try: udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+    except AttributeError: pass
+    udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    udp_socket.bind(("", whois_port))
     print(f"[Discovery] Listening on UDP {whois_port}")
 
-    def receive():
-        """
-        @brief Hört auf eingehende WHOIS/IAM-Meldungen (SLCP) im Netzwerk.
-
-        WHOIS: Wenn das Ziel-Handle dem eigenen entspricht, wird ein IAM zurückgesendet.
-        IAM: Wird empfangen und an die UI gemeldet, damit Peers gespeichert werden können.
-        """
+    def receive_whois():
+        nonlocal joined
         while True:
             try:
-                data, addr = sock.recvfrom(1024)
+                data, addr = udp_socket.recvfrom(1024)
                 msg = data.decode().strip()
                 parsed = parse_message(msg)
 
                 if parsed["command"] == "WHOIS" and parsed["params"][0] == local_handle:
+                    if not joined:
+                        print("[Discovery] WHOIS empfangen, aber nicht joined.")
+                        try:
+                            port = int(parsed["params"][1])
+                            if autoreply:
+                                rmsg = build_message("MSG", local_handle, "[autoreply] " + autoreply)
+                                udp_socket.sendto(rmsg.encode(), (addr[0], port))
+                                print(f"[Discovery] Auto-Reply an {addr[0]}:{port}")
+                        except: pass
+                        continue
+
                     try:
-                        target_port = int(parsed["params"][1])
+                        port = int(parsed["params"][1])
                         iam_msg = build_message("IAM", local_handle, get_own_ip(), local_port)
-                        sock.sendto(iam_msg.encode(), (addr[0], target_port))
-                        print(f"[Discovery] WHOIS von {addr}, IAM gesendet an {(addr[0], target_port)}")
+                        bcast = detect_broadcast_address()
+                        udp_socket.sendto(iam_msg.encode(), (bcast, whois_port))
+                        print(f"[Discovery] IAM an {bcast}:{whois_port}")
                     except: continue
 
                 elif parsed["command"] == "IAM":
-                    handle, ip, port = parsed["params"]
-                    queue_to_ui.put({
-                        "type": "iam",
-                        "handle": handle,
-                        "ip": ip,
-                        "port": int(port)
-                    })
+                    h, ip, port = parsed["params"]
+                    queue_to_ui_net.put({"type": "iam", "handle": h, "ip": ip, "port": int(port)})
 
             except Exception as e:
-                print(f"[Recv-Fehler] {e}")
+                print(f"[Discovery-Fehler] {e}")
             time.sleep(0.1)
 
-    def send():
-        """
-        @brief Verarbeitet WHOIS-Anfragen, die von der UI eingehen.
-
-        Wenn z. B. die UI einen Befehl wie 'whois b' ausführt, wird ein WHOIS
-        an alle (Broadcast) geschickt. Die Empfänger antworten mit IAM.
-        """
+    def process_outgoing():
+        nonlocal joined
+        if receive_only: return
         while True:
             try:
-                if not queue_from_ui.empty():
-                    raw = queue_from_ui.get_nowait()["data"].strip()
-                    handle = raw[6:].strip() if raw.upper().startswith("WHOIS ") else raw
+                item = queue_from_ui.get(timeout=0.1)
+                raw = item["data"].strip()
+                parsed = parse_message(raw)
+                cmd = parsed["command"]
+
+                if cmd == "JOIN":
+                    joined = True
+                    print("[Discovery] JOIN → aktiv")
+                elif cmd == "LEAVE":
+                    joined = False
+                    print("[Discovery] LEAVE → inaktiv")
+                elif cmd == "WHOIS":
+                    if not joined:
+                        print("[Discovery] WHOIS blockiert – nicht joined.")
+                        continue
+                    handle = parsed["params"][0]
                     msg = build_message("WHOIS", handle, str(local_port))
-                    sock.sendto(msg.encode(), ('255.255.255.255', whois_port))
+                    bcast = detect_broadcast_address()
+                    udp_socket.sendto(msg.encode(), (bcast, whois_port))
                     print(f"[Discovery] WHOIS gesendet: {msg}")
-            except Exception as e:
-                print(f"[Send-Fehler] {e}")
-            time.sleep(0.1)
 
-    # Starte parallele Threads
-    threading.Thread(target=receive, daemon=True).start()
-    threading.Thread(target=send, daemon=True).start()
+            except Empty:
+                pass
+            except Exception:
+                print("[Discovery-WHOIS-Fehler]")
+                traceback.print_exc()
 
-    # Hauptthread bleibt aktiv, blockiert aber nicht
+    threading.Thread(target=receive_whois, daemon=True).start()
+    threading.Thread(target=process_outgoing, daemon=True).start()
+
     while True: time.sleep(1)
 
-def get_own_ip():
-    """
-    @brief Ermittelt die lokale IP-Adresse des Rechners.
-
-    Nutzt eine Dummy-Verbindung zu 8.8.8.8 (Google DNS), um das genutzte Interface zu bestimmen.
-    @return IP-Adresse als String, z. B. "192.168.178.42"
-    """
+def get_own_ip() -> str:
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
@@ -112,5 +105,6 @@ def get_own_ip():
         s.close()
         return ip
     except:
-        return "127.0.0.1"  # Fallback
+        return "127.0.0.1"
+
 
